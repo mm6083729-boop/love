@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>❤️ قلب</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+overflow:hidden;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(-45deg,#070010,#2b0035,#70003d,#ff0066,#4b0082);
+background-size:400% 400%;
+animation:bgMove 12s ease infinite;
+font-family:tahoma;
+}
+
+@keyframes bgMove{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:0;
+}
+
+.heart{
+position:relative;
+width:220px;
+height:220px;
+background:#ff1744;
+transform:rotate(-45deg) scale(0);
+animation:
+drawHeart 2.5s forwards,
+pulse 1.5s infinite 2.5s;
+box-shadow:
+0 0 30px #ff1744,
+0 0 70px #ff4d6d,
+0 0 140px #ff80ab;
+z-index:10;
+}
+
+.heart:before,
+.heart:after{
+content:"";
+position:absolute;
+width:220px;
+height:220px;
+background:#ff1744;
+border-radius:50%;
+}
+
+.heart:before{
+top:-110px;
+left:0;
+}
+
+.heart:after{
+left:110px;
+top:0;
+}
+
+@keyframes drawHeart{
+0%{
+transform:rotate(-45deg) scale(0);
+filter:blur(25px);
+opacity:0;
+}
+60%{
+transform:rotate(-45deg) scale(1.15);
+opacity:1;
+}
+100%{
+transform:rotate(-45deg) scale(1);
+filter:blur(0);
+opacity:1;
+}
+}
+
+@keyframes pulse{
+0%,100%{
+transform:rotate(-45deg) scale(1);
+}
+50%{
+transform:rotate(-45deg) scale(1.08);
+}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div class="heart"></div>
+
+<video id="bgSound" playsinline loop style="display:none">
+<source src="1000399759.mp4" type="video/mp4">
+</video>
+<script>
+const video = document.getElementById("bgSound");
+
+async function playMusic(){
+    try{
+        video.muted = false;
+        video.volume = 1;
+        await video.play();
+    }catch(e){}
+}
+
+window.addEventListener("load", playMusic);
+document.body.addEventListener("click", playMusic,{once:true});
+document.body.addEventListener("touchstart", playMusic,{once:true});
+
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+}
+resize();
+window.addEventListener("resize",resize);
+
+const hearts=[];
+
+for(let i=0;i<160;i++){
+hearts.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+size:Math.random()*18+8,
+speed:Math.random()*1.6+0.5,
+alpha:Math.random()*0.7+0.2,
+dx:(Math.random()-0.5)*0.5
+});
+}
+
+function drawHeart(x,y,s,a){
+
+ctx.save();
+
+ctx.translate(x,y);
+ctx.scale(s/20,s/20);
+
+ctx.beginPath();
+ctx.moveTo(0,-5);
+
+ctx.bezierCurveTo(12,-22,35,-8,0,25);
+ctx.bezierCurveTo(-35,-8,-12,-22,0,-5);
+
+ctx.fillStyle="rgba(255,80,120,"+a+")";
+ctx.shadowColor="#ff3366";
+ctx.shadowBlur=20;
+
+ctx.fill();
+
+ctx.restore();
+
+}
+
+function animate(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+for(let h of hearts){
+
+drawHeart(h.x,h.y,h.size,h.alpha);
+
+h.y-=h.speed;
+h.x+=h.dx;
+
+if(h.y<-40){
+
+h.y=canvas.height+40;
+h.x=Math.random()*canvas.width;
+
+}
+
+}
+
+requestAnimationFrame(animate);
+
+}
+
+animate();
+</script>
+
+<script>
+/* نجوم لامعة */
+
+const stars=[];
+
+for(let i=0;i<180;i++){
+
+stars.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*2,
+a:Math.random(),
+d:Math.random()*0.02
+});
+
+}
+
+function drawStars(){
+
+for(let s of stars){
+
+ctx.beginPath();
+ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+ctx.fillStyle="rgba(255,255,255,"+s.a+")";
+ctx.fill();
+
+s.a+=s.d;
+
+if(s.a>=1||s.a<=0){
+s.d*=-1;
+}
+
+}
+
+}
+
+const oldAnimate=animate;
+
+animate=function(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+drawStars();
+
+for(let h of hearts){
+
+drawHeart(h.x,h.y,h.size,h.alpha);
+
+h.y-=h.speed;
+h.x+=h.dx;
+
+if(h.y<-40){
+h.y=canvas.height+40;
+h.x=Math.random()*canvas.width;
+}
+
+}
+
+requestAnimationFrame(animate);
+
+};
+
+animate();
+</script>
+
+</body>
+</html>
